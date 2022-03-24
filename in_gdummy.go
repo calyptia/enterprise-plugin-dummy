@@ -14,7 +14,7 @@ import (
 
 //export FLBPluginRegister
 func FLBPluginRegister(def unsafe.Pointer) int {
-	return input.FLBPluginRegister(def, "gdummy", "dummy GO!")
+	return input.FLBPluginRegister(def, "gdummy", "dummy golang")
 }
 
 //export FLBPluginInit
@@ -38,7 +38,7 @@ func FLBPluginInputCallback(data *unsafe.Pointer, size *C.size_t) int {
 	enc := input.NewEncoder()
 	packed, err := enc.Encode(entry)
 	if err != nil {
-		fmt.Println("Can't convert to msgpack:", message, err)
+		fmt.Println("Cannot convert to msgpack:", message, err)
 		return input.FLB_ERROR
 	}
 

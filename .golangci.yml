@@ -64,3 +64,6 @@ linters:
     - funlen
 issues:
   exclude-use-default: false
+  exclude-rules:
+    - path: ./in_gdummy.go
+      text: "comment on exported function (.+) should be of the form (.+)"
