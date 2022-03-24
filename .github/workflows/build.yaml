@@ -61,8 +61,8 @@ jobs:
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v4
         with:
-          gpg_private_key: ${{ secrets.CALYPTIA_GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.CALYPTIA_GPG_PRIVATE_KEY_PASSPHRASE }}
+          gpg_private_key: ${{ secrets.CALYPTIA_GPG_KEY }}
+          passphrase: ${{ secrets.CALYPTIA_GPG_KEY_PASSPHRASE }}
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
