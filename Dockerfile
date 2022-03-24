@@ -1,4 +1,4 @@
-FROM golang:1.18 as build
+FROM golang:1.17 as build
 
 # Install certificates
 # hadolint ignore=DL3008,DL3015
@@ -11,4 +11,4 @@ RUN go mod download
 
 # Now do the rest of the source code - this way we can speed up local iteration
 COPY . .
-RUN go build -buildmode=c-shared -trimpath -v ./...
+RUN go build -buildmode=c-shared -trimpath -v -o lib-enterprise-plugin-dummy.so ./...
