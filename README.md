@@ -1,10 +1,8 @@
-# Calyptia Enterprise template plugin
+# Calyptia Enterprise Dummy plugin
 
-A Calyptia Enterprise plugin template.
+A Calyptia Enterprise plugin providing dummy input.
 
-**TODO: change all references to the template repository to the correct name**
-
-The canonical source of this repository including all copyright and licensing information is here: https://github.com/calyptia/enterprise-plugin-template
+The canonical source of this repository including all copyright and licensing information is here: https://github.com/calyptia/enterprise-plugin-dummy
 ## Plugin architecture
 
 The intention is that every plugin provides a tarball in its release per architecture.
