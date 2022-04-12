@@ -1,6 +1,6 @@
 module github.com/calyptia/enterprise-plugin-dummy
 
-go 1.17
+go 1.18
 
 require github.com/fluent/fluent-bit-go v0.0.0-20211213025035-0be1ffb0c49b
 
