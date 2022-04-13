@@ -6,6 +6,7 @@ package plugin
 import "C"
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -88,7 +89,11 @@ func FLBPluginInputCallback(data *unsafe.Pointer, size *C.size_t) int {
 	}
 
 	select {
-	case msg := <-theWriter.ch:
+	case msg, ok := <-theWriter.ch:
+		if !ok {
+			return input.FLB_OK
+		}
+
 		t := input.FLBTime{Time: msg.Time}
 		b, err := input.NewEncoder().Encode([]any{t, msg.Data})
 		if err != nil {
@@ -99,7 +104,8 @@ func FLBPluginInputCallback(data *unsafe.Pointer, size *C.size_t) int {
 		*data = C.CBytes(b)
 		*size = C.size_t(len(b))
 	case <-runCtx.Done():
-		if err := runCtx.Err(); err != nil {
+		err := runCtx.Err()
+		if err != nil && !errors.Is(err, context.Canceled) {
 			fmt.Fprintf(os.Stderr, "run: %s\n", err)
 			return input.FLB_ERROR
 		}
@@ -119,7 +125,12 @@ type queueWriter struct {
 func (w *queueWriter) Write(ctx context.Context, t time.Time, data map[string]string) error {
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		err := ctx.Err()
+		if err != nil && !errors.Is(err, context.Canceled) {
+			return err
+		}
+
+		return nil
 	default:
 	}
 
