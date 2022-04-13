@@ -19,6 +19,8 @@ import (
 var theName string
 var theDesc string
 var theInput Input
+var setupDone bool
+var setupDoneCh = make(chan struct{}, 1)
 var once sync.Once
 var runCtx context.Context
 var runCancel context.CancelFunc
@@ -62,6 +64,11 @@ func FLBPluginInit(ptr unsafe.Pointer) int {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	defer func() {
+		setupDone = true
+		close(setupDoneCh)
+	}()
+
 	conf := &configLoader{ptr: ptr}
 	if err := theInput.Setup(ctx, conf); err != nil {
 		fmt.Fprintf(os.Stderr, "init: %s\n", err)
@@ -73,6 +80,10 @@ func FLBPluginInit(ptr unsafe.Pointer) int {
 
 //export FLBPluginInputCallback
 func FLBPluginInputCallback(data *unsafe.Pointer, size *C.size_t) int {
+	if !setupDone {
+		<-setupDoneCh
+	}
+
 	var err error
 	once.Do(func() {
 		runCtx, runCancel = context.WithCancel(context.Background())
