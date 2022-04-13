@@ -19,7 +19,6 @@ var theName string
 var theDesc string
 var theInput Input
 var once sync.Once
-var msgCh chan Message
 var runCtx context.Context
 var runCancel context.CancelFunc
 var theWriter *queueWriter
@@ -77,7 +76,11 @@ func FLBPluginInputCallback(data *unsafe.Pointer, size *C.size_t) int {
 	once.Do(func() {
 		runCtx, runCancel = context.WithCancel(context.Background())
 		theWriter = &queueWriter{ch: make(chan Message, 1)}
-		err = theInput.Run(runCtx, theWriter)
+		go func() {
+			defer runCancel()
+			defer close(theWriter.ch)
+			err = theInput.Run(runCtx, theWriter)
+		}()
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "run: %s\n", err)
@@ -100,8 +103,6 @@ func FLBPluginInputCallback(data *unsafe.Pointer, size *C.size_t) int {
 			fmt.Fprintf(os.Stderr, "run: %s\n", err)
 			return input.FLB_ERROR
 		}
-
-		return input.FLB_OK
 	}
 
 	return input.FLB_OK
@@ -129,6 +130,6 @@ func (w *queueWriter) Write(ctx context.Context, t time.Time, data map[string]st
 //export FLBPluginExit
 func FLBPluginExit() int {
 	runCancel()
-	close(msgCh)
+	defer close(theWriter.ch)
 	return input.FLB_OK
 }

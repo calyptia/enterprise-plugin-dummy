@@ -29,6 +29,8 @@ func (plug *dummyPlugin) Run(ctx context.Context, w plugin.Writer) error {
 		if err := w.Write(ctx, time.Now(), data); err != nil {
 			return err
 		}
+
+		time.Sleep(time.Second)
 	}
 
 	return nil
