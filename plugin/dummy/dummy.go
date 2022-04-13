@@ -3,34 +3,35 @@ package main
 import (
 	"context"
 	"time"
+
+	"github.com/calyptia/enterprise-plugin-dummy/plugin"
 )
 
-var Plugin = dummy{}
+func init() {
+	plugin.RegisterInput("go-dummy-plugin", "Dummy golang plugin for testing", &dummyPlugin{})
+}
 
-type dummy struct {
+type dummyPlugin struct {
 	foo string
 }
 
-func (dummy) Name() string { return "go-dummy-plugin" }
-
-func (dummy) Desc() string { return "dummy golang plugin" }
-
-func (dummy *dummy) Setup(ctx context.Context, load func(string) string) error {
-	dummy.foo = load("foo")
+func (plug *dummyPlugin) Setup(ctx context.Context, conf plugin.ConfigLoader) error {
+	plug.foo = conf.Load("foo")
 	return nil
 }
 
-func (dummy *dummy) Process(ctx context.Context, send func(time.Time, map[string]string) error) error {
+func (plug *dummyPlugin) Run(ctx context.Context, w plugin.Writer) error {
 	for i := 0; i < 10; i++ {
-		if err := send(time.Now(), map[string]string{
-			"now": time.Now().Format(time.RFC3339),
-			"foo": dummy.foo,
-		}); err != nil {
+		data := map[string]string{
+			"message": "hello from go-dummy-plugin",
+			"foo":     plug.foo,
+		}
+		if err := w.Write(ctx, time.Now(), data); err != nil {
 			return err
 		}
-
-		time.Sleep(time.Second)
 	}
 
 	return nil
 }
+
+func main() {}
